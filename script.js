@@ -85,23 +85,33 @@ function visualize() {
         const minVal = Math.min(...dataArray);
 
         const dynamicThreshold = getDynamicThreshold(time);
-        let belowThresholdCount = 0;
+        let barHeights = []; // 记录每个条的高度
+        let norms = [];
 
         for (let i = 0; i < bars; i++) {
-            const angle = (i / bars) * 2 * Math.PI;
             const norm = (dataArray[i] - minVal) / (maxVal - minVal + 1e-6);
             let barHeight = norm * 120 + minBarHeight; // 保证最小有minBarHeight
             if (i >= bars * 0.75 && barHeight < dynamicThreshold) {
                 barHeight = minBarHeight; // 动态去掉短条
-                belowThresholdCount++;
-                if (belowThresholdCount > 1) continue;
             }
-            else belowThresholdCount = 0;
 
+            barHeights.push(barHeight); // 记录条的高度
+            norms.push(norm);
+        }
+        for(let i = bars - 1; i >= 0; i--) {
+            if (barHeights[i] == minBarHeight) {
+                barHeights[i] = 0;
+            }
+            else {
+                break;
+            }
+        }
+        for (let i = 0; i < bars; i++) {
+            const angle = (i / bars) * 2 * Math.PI;
             const x1 = cx + Math.cos(angle) * radius;
             const y1 = cy + Math.sin(angle) * radius;
-            const x2 = cx + Math.cos(angle) * (radius + barHeight);
-            const y2 = cy + Math.sin(angle) * (radius + barHeight);
+            const x2 = cx + Math.cos(angle) * (radius + barHeights[i]);
+            const y2 = cy + Math.sin(angle) * (radius + barHeights[i]);
 
             const hue = (time + i * 3) % 360;
             const color = `hsl(${hue}, 100%, 50%)`;
@@ -112,7 +122,7 @@ function visualize() {
             ctx.lineTo(x2, y2);
             ctx.stroke();
 
-            if (norm > 0.5) createParticle(x2, y2, color);
+            if (norms[i] > 0.5) createParticle(x2, y2, color);
         }
 
         drawParticles();
