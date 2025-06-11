@@ -1,0 +1,19 @@
+body {
+    margin: 0;
+    background-color: #000;
+    color: #0ff;
+    font-family: monospace;
+    text-align: center;
+    padding-top: 20px;
+}
+
+canvas {
+    display: block;
+}
+
+#audioFile {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 2;
+}
